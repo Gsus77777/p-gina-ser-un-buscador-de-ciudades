@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pronóstico del Tiempo</title>
+
+  <style>
+    /* Estilos CSS */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      color: #007ea8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .weather-info {
+      margin-top: 20px;
+    }
+    .day {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .weather-details {
+      display: flex;
+      justify-content: space-between;
+    }
+    #search-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    #search-input {
+      flex-grow: 1;
+      padding: 8px;
+      border-radius: 4px 0 0 4px;
+      border: 1px solid #ccc;
+      border-right: none;
+    }
+    #search-button {
+      padding: 8px 16px;
+      border-radius: 0 4px 4px 0;
+      border: 1px solid #ccc;
+      background-color: #f0f0f0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pronóstico del Tiempo</h1>
+    <div id="search-container">
+      <input type="text" id="search-input" placeholder="Buscar una ciudad...">
+      <button id="search-button">Buscar</button>
+    </div>
+    <div class="weather-info">
+      <p><strong>Condiciones Actuales:</strong></p>
+      <p id="current-temperature">Temperatura: </p>
+      <p id="current-wind">Viento: </p>
+    </div>
+    <div class="forecast">
+      <h2>Pronóstico de 3 Días</h2>
+      <div class="day">Día 1</div>
+      <div class="weather-details">
+        <p id="day1-temperature">Temperatura: </p>
+        <p id="day1-wind">Viento: </p>
+      </div>
+      <div class="day">Día 2</div>
+      <div class="weather-details">
+        <p id="day2-temperature">Temperatura: </p>
+        <p id="day2-wind">Viento: </p>
+      </div>
+      <div class="day">Día 3</div>
+      <div class="weather-details">
+        <p id="day3-temperature">Temperatura: </p>
+        <p id="day3-wind">Viento: </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Función para realizar la búsqueda y obtener el pronóstico del tiempo
+    function searchWeather() {
+      const apiKey = 'TU_API_KEY'; // Reemplaza 'TU_API_KEY' con tu propia API key de OpenWeatherMap
+      const city = document.getElementById('search-input').value;
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`;
+
+      // Realizar solicitud a la API
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Actualizar la información en la página HTML
+          document.getElementById('current-temperature').textContent = `Temperatura: ${data.main.temp}°C`;
+          document.getElementById('current-wind').textContent = `Viento: ${data.wind.speed} km/h`;
+        })
+        .catch(error => console.log('Error al obtener datos del clima:', error));
+
+      // Obtener el pronóstico de 3 días
+      const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
+
+      fetch(forecastUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Actualizar la información en la página HTML para los próximos 3 días
+          for (let i = 0; i < 3; i++) {
+            const dayIndex = i * 8; // Se obtiene la información de cada día a intervalos de 8 (cada 3 horas)
+            document.getElementById(`day${i+1}-temperature`).textContent = `Temperatura: ${data.list[dayIndex].main.temp}°C`;
+            document.getElementById(`day${i+1}-wind`).textContent = `Viento: ${data.list[dayIndex].wind.speed} km/h`;
+          }
+        })
+        .catch(error => console.log('Error al obtener datos del pronóstico:', error));
+    }
+
+    // Event listener para el botón de búsqueda
+    document.getElementById('search-button').addEventListener('click', searchWeather);
+  </script>
+</body>
+</html>
